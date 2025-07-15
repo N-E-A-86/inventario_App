@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist/build/pdf';
 import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
+import { collection, getDocs, writeBatch } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -42,6 +42,8 @@ export default function PdfUploader() {
   };
 
   const parseAndupdatePrices = async (text) => {
+    console.log("Texto extraído del PDF:", text); // DEBUGGING
+
     // Regex updated for the user's format e.g., "aceite marolio: $1.500"
     const priceRegex = /([A-Za-z\s0-9]+):?\s*\$(\s*\d{1,3}(?:\.\d{3})*)/g;
     let match;
@@ -57,6 +59,8 @@ export default function PdfUploader() {
         updates.push({ name: itemName, price: itemPrice });
       }
     }
+    
+    console.log("Precios encontrados y parseados:", updates); // DEBUGGING
 
     if (updates.length === 0) {
       alert("No se encontraron precios con el formato esperado en el PDF. Por favor, asegúrate de que el formato sea como 'Producto: $1.500'");
