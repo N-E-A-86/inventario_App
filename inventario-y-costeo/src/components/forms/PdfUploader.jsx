@@ -41,18 +41,22 @@ export default function PdfUploader() {
     fileReader.readAsArrayBuffer(file);
   };
 
-  const parseAndupdatePrices = async (text) => {
-    console.log("Texto extraído del PDF:", text); // DEBUGGING
+  const parseAndupdatePrices = async (rawText) => {
+    // 1. Normalize the extracted text: remove multiple spaces
+    const text = rawText.replace(/\s+/g, ' ');
+    console.log("Texto Normalizado:", text); // DEBUGGING
 
-    // Regex updated for the user's format e.g., "aceite marolio: $1.500"
-    const priceRegex = /([A-Za-z\s0-9]+):?\s*\$(\s*\d{1,3}(?:\.\d{3})*)/g;
+    // 2. Improved Regex to handle accents and more price variations
+    const priceRegex = /([\w\sáéíóúÁÉÍÓÚñÑ]+?)\s*:?\s*\$\s*([\d.,]+)/g;
     let match;
     const updates = [];
 
     while ((match = priceRegex.exec(text)) !== null) {
+      // 3. Normalize the item name from the PDF
       const itemName = match[1].trim();
-      // Remove dots and parse the price
-      const priceString = match[2].replace(/\./g, '').trim();
+      
+      // 4. Normalize the price string (remove dots and commas)
+      const priceString = match[2].replace(/[.,]/g, '');
       const itemPrice = parseFloat(priceString);
       
       if (!isNaN(itemPrice)) {
@@ -78,7 +82,10 @@ export default function PdfUploader() {
     const allItems = allItemsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
     for (const update of updates) {
-      const itemToUpdate = allItems.find(item => item.name.toLowerCase() === update.name.toLowerCase());
+      // 5. Compare normalized names
+      const itemToUpdate = allItems.find(item => 
+        item.name.toLowerCase().replace(/\s+/g, ' ') === update.name.toLowerCase()
+      );
       if (itemToUpdate) {
         const docRef = allItemsSnapshot.docs.find(doc => doc.id === itemToUpdate.id).ref;
         batch.update(docRef, { price: update.price });
