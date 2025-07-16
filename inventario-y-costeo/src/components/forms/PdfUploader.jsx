@@ -42,29 +42,27 @@ export default function PdfUploader() {
   };
 
   const parseAndupdatePrices = async (rawText) => {
-    // 1. Normalize the extracted text: remove multiple spaces
     const text = rawText.replace(/\s+/g, ' ');
-    console.log("Texto Normalizado:", text); // DEBUGGING
 
-    // 2. Improved Regex to handle accents and more price variations
-    const priceRegex = /([\w\sáéíóúÁÉÍÓÚñÑ]+?)\s*:?\s*\$\s*([\d.,]+)/g;
+    // A more robust regex to capture product names that may contain various characters
+    // and prices that are clearly separated by a '$'.
+    const priceRegex = /([A-Za-z0-9\sáéíóúÁÉÍÓÚñÑ.:-]+?)\s*\$(\s*[\d,.]+)/g;
     let match;
     const updates = [];
 
     while ((match = priceRegex.exec(text)) !== null) {
-      // 3. Normalize the item name from the PDF
-      const itemName = match[1].trim();
+      let itemName = match[1].replace(/:$/, "").trim(); // Clean trailing colons and whitespace
       
-      // 4. Normalize the price string (remove dots and commas)
-      const priceString = match[2].replace(/[.,]/g, '');
+      // Skip any matches that are clearly not items
+      if (itemName.toLowerCase().includes("listado de prec")) continue;
+
+      const priceString = match[2].replace(/[.,]/g, '').trim();
       const itemPrice = parseFloat(priceString);
       
-      if (!isNaN(itemPrice)) {
+      if (!isNaN(itemPrice) && itemName) {
         updates.push({ name: itemName, price: itemPrice });
       }
     }
-    
-    console.log("Precios encontrados y parseados:", updates); // DEBUGGING
 
     if (updates.length === 0) {
       alert("No se encontraron precios con el formato esperado en el PDF. Por favor, asegúrate de que el formato sea como 'Producto: $1.500'");
@@ -82,10 +80,12 @@ export default function PdfUploader() {
     const allItems = allItemsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
     for (const update of updates) {
-      // 5. Compare normalized names
+      // 5. Compare hyper-normalized names (lowercase, no spaces)
+      const normalizedPdfName = update.name.toLowerCase().replace(/\s/g, '');
       const itemToUpdate = allItems.find(item => 
-        item.name.toLowerCase().replace(/\s+/g, ' ') === update.name.toLowerCase()
+        item.name.toLowerCase().replace(/\s/g, '') === normalizedPdfName
       );
+
       if (itemToUpdate) {
         const docRef = allItemsSnapshot.docs.find(doc => doc.id === itemToUpdate.id).ref;
         batch.update(docRef, { price: update.price });
