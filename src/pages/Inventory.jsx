@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, doc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
   Table,
@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import AddItemForm from "@/components/forms/AddItemForm";
+import PdfUploader from "@/components/forms/PdfUploader";
+import EditItemForm from "@/components/forms/EditItemForm";
 
 export default function Inventory() {
   const [inventory, setInventory] = useState([]);
@@ -28,7 +30,10 @@ export default function Inventory() {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-3xl font-bold">Inventario</h1>
-        <AddItemForm />
+        <div className="flex gap-2">
+          <PdfUploader />
+          <AddItemForm />
+        </div>
       </div>
       <div className="border rounded-lg">
         <Table>
@@ -39,6 +44,7 @@ export default function Inventory() {
               <TableHead>Cantidad</TableHead>
               <TableHead>Unidad</TableHead>
               <TableHead>Precio/Unidad</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -49,6 +55,10 @@ export default function Inventory() {
                 <TableCell>{item.quantity}</TableCell>
                 <TableCell>{item.unit}</TableCell>
                 <TableCell>${item.price}</TableCell>
+                <TableCell className="text-right">
+                  <EditItemForm item={item} />
+                  <Button variant="destructive" size="sm" onClick={() => handleDelete(item.id)}>Eliminar</Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -56,4 +66,15 @@ export default function Inventory() {
       </div>
     </div>
   );
+
+  async function handleDelete(id) {
+    if (window.confirm("¿Estás seguro de que quieres eliminar este artículo?")) {
+      try {
+        await deleteDoc(doc(db, "inventory", id));
+      } catch (error) {
+        console.error("Error removing document: ", error);
+        alert("Hubo un error al eliminar el artículo.");
+      }
+    }
+  }
 }
