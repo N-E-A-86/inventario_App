@@ -16,6 +16,7 @@ export default function EditRecipeForm({ recipe, onClose }) {
       });
       onClose();
     } catch (error) {
+      console.error("Error al actualizar la receta:", error);
       alert("Error al actualizar la receta.");
     }
   }
