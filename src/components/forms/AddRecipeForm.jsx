@@ -113,46 +113,46 @@ export default function AddRecipeForm() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Crear Receta</Button>
+        <Button className="bg-blue-500 hover:bg-blue-600 text-white">Crear Receta</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl bg-white rounded-lg shadow-xl">
         <DialogHeader>
-          <DialogTitle>Crear Nueva Receta</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-gray-800">Crear Nueva Receta</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-6 py-6 px-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">Nombre de la Receta</Label>
+              <Label htmlFor="name" className="text-right font-medium text-gray-700">Nombre</Label>
               <Input id="name" value={recipeName} onChange={(e) => setRecipeName(e.target.value)} className="col-span-3" />
             </div>
             
-            <h3 className="font-semibold mt-4">Ingredientes</h3>
+            <h3 className="font-semibold mt-4 text-gray-800">Ingredientes</h3>
             <IngredientCombobox inventory={inventory} onSelect={handleAddIngredient} />
 
-            <div className="space-y-2 mt-2">
+            <div className="space-y-3 mt-4 max-h-60 overflow-y-auto pr-2">
               {ingredients.map(ing => (
-                <div key={ing.id} className="flex items-center gap-2">
-                  <span className="flex-1">{ing.name}</span>
+                <div key={ing.id} className="flex items-center gap-4 p-2 rounded-md bg-gray-50">
+                  <span className="flex-1 font-medium text-gray-700">{ing.name}</span>
                   <Input
                     type="number"
                     className="w-24"
                     value={ing.quantity}
                     onChange={(e) => handleQuantityChange(ing.id, e.target.value)}
                   />
-                  <span>{ing.unit}</span>
-                  <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveIngredient(ing.id)}>
+                  <span className="text-gray-600">{ing.unit}</span>
+                  <Button type="button" variant="destructive" size="icon" onClick={() => handleRemoveIngredient(ing.id)}>
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
               ))}
             </div>
 
-            <div className="text-right font-bold text-lg mt-4">
-              Costo Total: ${totalCost.toFixed(2)}
+            <div className="text-right font-bold text-xl mt-4 text-gray-800">
+              Costo Total: <span className="text-green-600">${totalCost.toFixed(2)}</span>
             </div>
           </div>
-          <DialogFooter>
-            <Button type="submit">Guardar Receta</Button>
+          <DialogFooter className="px-4 py-3 bg-gray-50 rounded-b-lg">
+            <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white">Guardar Receta</Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -26,47 +26,6 @@ export default function Inventory() {
     return () => unsubscribe();
   }, []);
 
-  return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold">Inventario</h1>
-        <div className="flex gap-2">
-          <PdfUploader />
-          <AddItemForm />
-        </div>
-      </div>
-      <div className="border rounded-lg">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Categoría</TableHead>
-              <TableHead>Cantidad</TableHead>
-              <TableHead>Unidad</TableHead>
-              <TableHead>Precio/Unidad</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {inventory.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.name}</TableCell>
-                <TableCell>{item.category}</TableCell>
-                <TableCell>{item.quantity}</TableCell>
-                <TableCell>{item.unit}</TableCell>
-                <TableCell>${item.price}</TableCell>
-                <TableCell className="text-right">
-                  <EditItemForm item={item} />
-                  <Button variant="destructive" size="sm" onClick={() => handleDelete(item.id)}>Eliminar</Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
-  );
-
   async function handleDelete(id) {
     if (window.confirm("¿Estás seguro de que quieres eliminar este artículo?")) {
       try {
@@ -77,4 +36,47 @@ export default function Inventory() {
       }
     }
   }
+
+  return (
+    <div className="container mx-auto p-4">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-4xl font-bold text-gray-800">Inventario</h1>
+        <div className="flex gap-4">
+          <PdfUploader />
+          <AddItemForm />
+        </div>
+      </div>
+      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-100">
+              <TableHead className="font-bold">Nombre</TableHead>
+              <TableHead className="font-bold">Categoría</TableHead>
+              <TableHead className="font-bold">Cantidad</TableHead>
+              <TableHead className="font-bold">Unidad</TableHead>
+              <TableHead className="font-bold">Precio/Unidad</TableHead>
+              <TableHead className="text-right font-bold">Acciones</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {inventory.map((item) => (
+              <TableRow key={item.id} className="hover:bg-gray-50">
+                <TableCell className="font-medium">{item.name}</TableCell>
+                <TableCell>{item.category}</TableCell>
+                <TableCell>{item.quantity}</TableCell>
+                <TableCell>{item.unit}</TableCell>
+                <TableCell>${item.price}</TableCell>
+                <TableCell className="text-right space-x-2">
+                  <EditItemForm item={item} />
+                  <Button variant="destructive" size="sm" onClick={() => handleDelete(item.id)}>
+                    Eliminar
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
 }
