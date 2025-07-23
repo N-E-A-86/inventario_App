@@ -111,8 +111,8 @@ export default function PdfUploader() {
         accept="application/pdf"
         disabled={isProcessing}
       />
-      <Button asChild variant="outline" disabled={isProcessing}>
-        <label htmlFor="pdf-upload">
+      <Button asChild variant="outline" disabled={isProcessing} className="bg-green-500 hover:bg-green-600 text-white">
+        <label htmlFor="pdf-upload" className="cursor-pointer">
           {isProcessing ? "Procesando..." : "Actualizar Precios (PDF)"}
         </label>
       </Button>

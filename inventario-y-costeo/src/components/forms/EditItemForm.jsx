@@ -41,44 +41,44 @@ export default function EditItemForm({ item }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">Editar</Button>
+        <Button variant="outline" size="sm">Editar</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-lg bg-white rounded-lg shadow-xl">
         <DialogHeader>
-          <DialogTitle>Editar Artículo</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-2xl font-bold text-gray-800">Editar Artículo</DialogTitle>
+          <DialogDescription className="text-gray-600">
             Modifica los detalles del artículo y haz clic en guardar.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-6 py-6 px-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">Nombre</Label>
+              <Label htmlFor="name" className="text-right font-medium text-gray-700">Nombre</Label>
               <Input id="name" value={editedItem.name} onChange={handleChange} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="category" className="text-right">Categoría</Label>
+              <Label htmlFor="category" className="text-right font-medium text-gray-700">Categoría</Label>
               <Input id="category" value={editedItem.category} onChange={handleChange} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="quantity" className="text-right">Cantidad</Label>
+              <Label htmlFor="quantity" className="text-right font-medium text-gray-700">Cantidad</Label>
               <Input id="quantity" type="number" value={editedItem.quantity} onChange={handleChange} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="unit" className="text-right">Unidad</Label>
+              <Label htmlFor="unit" className="text-right font-medium text-gray-700">Unidad</Label>
               <Input id="unit" value={editedItem.unit} onChange={handleChange} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="price" className="text-right">Precio</Label>
+              <Label htmlFor="price" className="text-right font-medium text-gray-700">Precio</Label>
               <Input id="price" type="number" value={editedItem.price} onChange={handleChange} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="provider" className="text-right">Proveedor</Label>
+              <Label htmlFor="provider" className="text-right font-medium text-gray-700">Proveedor</Label>
               <Input id="provider" value={editedItem.provider} onChange={handleChange} className="col-span-3" />
             </div>
           </div>
-          <DialogFooter>
-            <Button type="submit">Guardar Cambios</Button>
+          <DialogFooter className="px-4 py-3 bg-gray-50 rounded-b-lg">
+            <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white">Guardar Cambios</Button>
           </DialogFooter>
         </form>
       </DialogContent>
