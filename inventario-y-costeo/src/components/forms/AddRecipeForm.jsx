@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { ChevronsUpDown, X } from "lucide-react";
+import "@/modern-theme.css";
 
 // Combobox component for selecting ingredients
 function IngredientCombobox({ inventory, onSelect }) {
@@ -16,7 +17,7 @@ function IngredientCombobox({ inventory, onSelect }) {
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between">
+        <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between modern-input" style={{ backgroundColor: '#e0e0e0', color: '#212121', fontWeight: '500' }}>
           Seleccionar ingrediente...
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -26,10 +27,10 @@ function IngredientCombobox({ inventory, onSelect }) {
         style={{ zIndex: 9999, backgroundColor: 'white' }}
       >
         <Command>
-          <CommandInput placeholder="Buscar ingrediente..." />
+          <CommandInput placeholder="Buscar ingrediente..." className="modern-input" />
           <CommandList>
             <CommandEmpty>No se encontró el ingrediente.</CommandEmpty>
-            <CommandGroup className="bg-white z-50">
+            <CommandGroup>
               {inventory.map((item) => (
                 <CommandItem
                   key={item.id}
@@ -38,6 +39,7 @@ function IngredientCombobox({ inventory, onSelect }) {
                     onSelect(item);
                     setOpen(false);
                   }}
+                  className="modern-command-item"
                 >
                   {item.name}
                 </CommandItem>
@@ -116,48 +118,48 @@ export default function AddRecipeForm() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-500 hover:bg-blue-600 text-white">Crear Receta</Button>
+        <Button className="modern-button">Crear Receta</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl bg-white rounded-lg shadow-xl">
+      <DialogContent className="modern-dialog">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-800">Crear Nueva Receta</DialogTitle>
+          <DialogTitle className="modern-dialog-title">Crear Nueva Receta</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-6 py-6 px-4">
-            <div className="grid grid-cols-4 items-center gap-4 mb-6">
-              <Label htmlFor="name" className="text-right font-medium text-gray-700">Nombre</Label>
-              <Input id="name" value={recipeName} onChange={(e) => setRecipeName(e.target.value)} className="col-span-3" />
+          <div className="grid gap-8 py-8 px-4">
+            <div className="grid grid-cols-4 items-center gap-4 mb-8">
+              <Label htmlFor="name" className="text-right modern-label">Nombre</Label>
+              <Input id="name" value={recipeName} onChange={(e) => setRecipeName(e.target.value)} className="col-span-3 modern-input" />
             </div>
             
-            <h3 className="font-semibold mt-6 text-gray-800">Ingredientes</h3>
-            <div className="mb-6">
+            <h3 className="font-semibold text-gray-800 mb-4">Ingredientes</h3>
+            <div className="mb-8">
               <IngredientCombobox inventory={inventory} onSelect={handleAddIngredient} />
             </div>
 
-            <div className="space-y-3 mt-4 max-h-60 overflow-y-auto pr-2">
+            <div className="space-y-4 mt-4 max-h-60 overflow-y-auto pr-2">
               {ingredients.map(ing => (
-                <div key={ing.id} className="flex items-center gap-4 p-2 rounded-md bg-gray-50">
-                  <span className="flex-1 font-medium text-gray-700">{ing.name}</span>
+                <div key={ing.id} className="flex items-center gap-4 p-3 rounded-lg bg-gray-100">
+                  <span className="flex-1 font-medium text-gray-800">{ing.name}</span>
                   <Input
                     type="number"
-                    className="w-24"
+                    className="w-24 modern-input"
                     value={ing.quantity}
                     onChange={(e) => handleQuantityChange(ing.id, e.target.value)}
                   />
                   <span className="text-gray-600">{ing.unit}</span>
-                  <Button type="button" variant="destructive" size="icon" onClick={() => handleRemoveIngredient(ing.id)}>
+                  <Button type="button" variant="destructive" size="icon" onClick={() => handleRemoveIngredient(ing.id)} className="modern-button modern-button-destructive">
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
               ))}
             </div>
 
-            <div className="text-right font-bold text-xl mt-6 text-gray-800 mb-6">
-              Costo Total: <span className="text-green-600">${totalCost.toFixed(2)}</span>
+            <div className="text-right font-bold text-2xl mt-8 text-gray-800">
+              Costo Total: <span style={{ color: 'var(--success-color)' }}>${totalCost.toFixed(2)}</span>
             </div>
           </div>
-          <DialogFooter className="px-4 py-3 bg-gray-50 rounded-b-lg">
-            <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white">Guardar Receta</Button>
+          <DialogFooter className="px-4 py-4 bg-gray-100 flex justify-end">
+            <Button type="submit" className="modern-button">Guardar Receta</Button>
           </DialogFooter>
         </form>
       </DialogContent>

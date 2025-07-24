@@ -54,8 +54,8 @@ export default function Recipes() {
               <p className="text-gray-600 mt-2">Costo Total: <span className="font-bold text-green-600">${recipe.totalCost.toFixed(2)}</span></p>
             </div>
             <div className="flex justify-end gap-2 mt-4">
-              <Button variant="outline" size="sm" onClick={() => setEditingRecipe(recipe)}>Editar</Button>
-              <Button variant="destructive" size="sm" onClick={() => handleDelete(recipe.id)}>Eliminar</Button>
+              <Button variant="outline" size="sm" onClick={() => setEditingRecipe(recipe)} className="modern-button">Editar</Button>
+              <Button variant="destructive" size="sm" onClick={() => handleDelete(recipe.id)} className="modern-button modern-button-destructive">Eliminar</Button>
             </div>
           </div>
         ))}

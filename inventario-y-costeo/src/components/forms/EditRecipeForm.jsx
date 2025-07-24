@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import "@/modern-theme.css";
 
 export default function EditRecipeForm({ recipe, onClose }) {
   const [name, setName] = useState(recipe.name);
@@ -33,9 +34,9 @@ export default function EditRecipeForm({ recipe, onClose }) {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg bg-white rounded-lg shadow-xl">
+      <DialogContent className="modern-dialog">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-800">Editar Receta</DialogTitle>
+          <DialogTitle className="modern-dialog-title">Editar Receta</DialogTitle>
           <DialogDescription className="text-gray-600">
             Modifica los detalles de la receta y haz clic en guardar.
           </DialogDescription>
@@ -43,10 +44,10 @@ export default function EditRecipeForm({ recipe, onClose }) {
         <form onSubmit={handleSubmit}>
           <div className="grid gap-6 py-6 px-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-name" className="text-right font-medium text-gray-700">Nombre</Label>
+              <Label htmlFor="edit-name" className="text-right modern-label">Nombre</Label>
               <Input
                 id="edit-name"
-                className="col-span-3"
+                className="col-span-3 modern-input"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
@@ -54,12 +55,12 @@ export default function EditRecipeForm({ recipe, onClose }) {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-cost" className="text-right font-medium text-gray-700">Costo Total</Label>
+              <Label htmlFor="edit-cost" className="text-right modern-label">Costo Total</Label>
               <Input
                 id="edit-cost"
                 type="number"
                 step="0.01"
-                className="col-span-3"
+                className="col-span-3 modern-input"
                 value={totalCost}
                 onChange={e => setTotalCost(e.target.value)}
                 required
@@ -69,7 +70,7 @@ export default function EditRecipeForm({ recipe, onClose }) {
           </div>
           <DialogFooter className="px-4 py-3 bg-gray-50 rounded-b-lg">
             <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-            <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white">Guardar Cambios</Button>
+            <Button type="submit" className="modern-button">Guardar Cambios</Button>
           </DialogFooter>
         </form>
       </DialogContent>

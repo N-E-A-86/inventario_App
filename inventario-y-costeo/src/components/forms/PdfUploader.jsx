@@ -4,6 +4,7 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs, writeBatch } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import '@/modern-theme.css';
 
 // Set up the worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.mjs`;
@@ -111,7 +112,7 @@ export default function PdfUploader() {
         accept="application/pdf"
         disabled={isProcessing}
       />
-      <Button asChild variant="outline" disabled={isProcessing} className="bg-green-500 hover:bg-green-600 text-white">
+      <Button asChild variant="outline" disabled={isProcessing} className="modern-button" style={{ backgroundColor: 'var(--success-color)' }}>
         <label htmlFor="pdf-upload" className="cursor-pointer">
           {isProcessing ? "Procesando..." : "Actualizar Precios (PDF)"}
         </label>
