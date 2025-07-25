@@ -66,6 +66,6 @@ body {
 }
 
 .modern-command-item:hover {
-  background-color: var(--secondary-color);
-  cursor: pointer;
+  background-color: var(--secondary-color) !important;
+  cursor: pointer !important;
 }
