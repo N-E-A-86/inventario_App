@@ -68,7 +68,12 @@ export default function Inventory() {
                 <TableCell>${item.price}</TableCell>
                 <TableCell className="text-right space-x-2">
                   <EditItemForm item={item} />
-                  <Button variant="destructive" size="sm" onClick={() => handleDelete(item.id)} className="modern-button modern-button-destructive">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(item.id)}
+                    className="modern-button modern-button-destructive"
+                  >
                     Eliminar
                   </Button>
                 </TableCell>
