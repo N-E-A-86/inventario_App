@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
-import { doc, updateDoc, collection, getDocs } from "firebase/firestore";
+import { collection, addDoc, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { convertToGramsOrMl } from "@/lib/conversions";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -12,13 +9,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import "@/modern-theme.css";
 
-export default function EditRecipeForm({ recipe, onClose }) {
-  const [name, setName] = useState(recipe.name);
-  const [ingredients, setIngredients] = useState(recipe.ingredients || []);
+export default function AddRecipeForm() {
+  const [open, setOpen] = useState(false);
   const [inventoryItems, setInventoryItems] = useState([]);
+  const [recipeName, setRecipeName] = useState("");
+  const [ingredients, setIngredients] = useState([{ itemId: "", quantity: 0, unit: "" }]);
 
   useEffect(() => {
     const fetchInventory = async () => {
@@ -29,8 +31,10 @@ export default function EditRecipeForm({ recipe, onClose }) {
       }));
       setInventoryItems(items);
     };
-    fetchInventory();
-  }, []);
+    if (open) {
+      fetchInventory();
+    }
+  }, [open]);
 
   const handleIngredientChange = (index, field, value) => {
     const newIngredients = [...ingredients];
@@ -39,7 +43,7 @@ export default function EditRecipeForm({ recipe, onClose }) {
   };
 
   const addIngredient = () => {
-    setIngredients([...ingredients, { itemId: "", quantity: 0 }]);
+    setIngredients([...ingredients, { itemId: "", quantity: 0, unit: "" }]);
   };
 
   const removeIngredient = (index) => {
@@ -47,9 +51,9 @@ export default function EditRecipeForm({ recipe, onClose }) {
     setIngredients(newIngredients);
   };
 
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name || ingredients.some(ing => !ing.itemId || ing.quantity <= 0)) {
+    if (!recipeName || ingredients.some(ing => !ing.itemId || ing.quantity <= 0)) {
       alert("Por favor, complete todos los campos de la receta.");
       return;
     }
@@ -65,42 +69,49 @@ export default function EditRecipeForm({ recipe, onClose }) {
         }
       }
 
-      await updateDoc(doc(db, "recipes", recipe.id), {
-        name,
+      const recipeData = {
+        name: recipeName,
         ingredients: ingredients.map(ing => ({
           itemId: ing.itemId,
           quantity: Number(ing.quantity),
           unit: ing.unit
         })),
         totalCost: totalCost,
-      });
-      onClose();
+        createdAt: new Date(),
+      };
+
+      await addDoc(collection(db, "recipes"), recipeData);
+
+      setRecipeName("");
+      setIngredients([{ itemId: "", quantity: 0 }]);
+      setOpen(false);
     } catch (error) {
-      console.error("Error al actualizar la receta:", error);
-      alert("Error al actualizar la receta.");
+      console.error("Error adding recipe: ", error);
+      alert("Hubo un error al añadir la receta.");
     }
-  }
+  };
 
   return (
-    <Dialog open={true} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="modern-button">Añadir Receta</Button>
+      </DialogTrigger>
       <DialogContent className="modern-dialog">
         <DialogHeader>
-          <DialogTitle className="modern-dialog-title">Editar Receta</DialogTitle>
+          <DialogTitle className="modern-dialog-title">Añadir Nueva Receta</DialogTitle>
           <DialogDescription className="text-gray-600">
-            Modifica los detalles de la receta y haz clic en guardar.
+            Rellena los detalles de la nueva receta.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-6 py-6 px-4">
+          <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-name" className="text-right modern-label">Nombre</Label>
+              <Label htmlFor="recipeName" className="text-right modern-label">Nombre</Label>
               <Input
-                id="edit-name"
+                id="recipeName"
+                value={recipeName}
+                onChange={(e) => setRecipeName(e.target.value)}
                 className="col-span-3 modern-input"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                required
-                autoFocus
               />
             </div>
             <h4 className="text-lg font-semibold mt-4 modern-label">Ingredientes</h4>
@@ -142,8 +153,7 @@ export default function EditRecipeForm({ recipe, onClose }) {
             </Button>
           </div>
           <DialogFooter className="px-4 py-3 bg-gray-50 rounded-b-lg">
-            <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-            <Button type="submit" className="modern-button">Guardar Cambios</Button>
+            <Button type="submit" className="modern-button">Guardar Receta</Button>
           </DialogFooter>
         </form>
       </DialogContent>

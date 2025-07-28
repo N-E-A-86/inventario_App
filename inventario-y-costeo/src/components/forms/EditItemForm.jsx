@@ -58,7 +58,7 @@ export default function EditItemForm({ item }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Editar</Button>
+        <Button variant="outline" className="modern-button-edit">Editar</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] bg-gray-800 text-white">
         <DialogHeader>
