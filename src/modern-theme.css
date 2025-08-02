@@ -14,7 +14,7 @@
 body {
   font-family: var(--font-family);
   color: var(--text-color);
-  background-color: #f9f9f9;
+  background-color: var(--background-color);
 }
 
 .modern-dialog {
@@ -49,8 +49,8 @@ body {
 }
 
 .modern-button-edit {
-  background-color: yellow !important;
-  color: black !important;
+  background-color: var(--warning-color);
+  color: var(--warning-text-color);
 }
 
 .modern-input {
@@ -71,6 +71,6 @@ body {
 }
 
 .modern-command-item:hover {
-  background-color: var(--secondary-color) !important;
+  background-color: var(--surface-hover-color) !important;
   cursor: pointer !important;
 }
