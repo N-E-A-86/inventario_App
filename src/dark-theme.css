@@ -1,0 +1,58 @@
+.dark {
+  --primary-color: #bb86fc;
+  --primary-hover-color: #a050f0;
+  --secondary-color: #121212;
+  --text-color: #e0e0e0;
+  --border-color: #444;
+  --success-color: #03dac6;
+  --danger-color: #cf6679;
+  --surface-color: #1e1e1e;
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+}
+
+.dark .modern-dialog {
+  background-color: var(--surface-color);
+}
+
+.dark .modern-dialog-title {
+  color: var(--primary-color);
+}
+
+.dark .modern-input {
+  background-color: var(--surface-color);
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.dark .modern-label {
+  color: var(--text-color);
+}
+
+.dark .bg-white {
+    background-color: var(--surface-color) !important;
+}
+
+.dark .text-gray-800 {
+    color: var(--text-color) !important;
+}
+
+.dark .text-gray-600 {
+    color: #aaa !important;
+}
+
+.dark .bg-gray-100 {
+    background-color: #2a2a2a !important;
+}
+
+.dark .hover\:bg-gray-50:hover {
+    background-color: #2c2c2c !important;
+}
+
+.dark .hover\:bg-gray-700:hover {
+    background-color: var(--primary-hover-color) !important;
+}
+
+.dark .bg-gray-50 {
+    background-color: #2a2a2a !important;
+}

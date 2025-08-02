@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import Inventory from "./pages/Inventory";
 import Recipes from "./pages/Recipes";
+import "./dark-theme.css";
 
 function App() {
   return (

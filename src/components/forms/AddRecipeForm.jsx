@@ -1,158 +1,174 @@
 import { useState, useEffect } from "react";
-import { collection, onSnapshot, addDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { convertToBaseUnit } from "@/lib/conversions";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { ChevronsUpDown, X } from "lucide-react";
-
-// Combobox component for selecting ingredients
-function IngredientCombobox({ inventory, onSelect }) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between">
-          Seleccionar ingrediente...
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-        <Command>
-          <CommandInput placeholder="Buscar ingrediente..." />
-          <CommandList>
-            <CommandEmpty>No se encontró el ingrediente.</CommandEmpty>
-            <CommandGroup>
-              {inventory.map((item) => (
-                <CommandItem
-                  key={item.id}
-                  value={item.name}
-                  onSelect={() => {
-                    onSelect(item);
-                    setOpen(false);
-                  }}
-                >
-                  {item.name}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  );
-}
-
+import "@/modern-theme.css";
 
 export default function AddRecipeForm() {
   const [open, setOpen] = useState(false);
+  const [inventoryItems, setInventoryItems] = useState([]);
   const [recipeName, setRecipeName] = useState("");
-  const [ingredients, setIngredients] = useState([]);
-  const [inventory, setInventory] = useState([]);
-  const [totalCost, setTotalCost] = useState(0);
+  const [ingredients, setIngredients] = useState([{ itemId: "", quantity: 0, unit: "" }]);
 
-  // Fetch inventory for the combobox
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "inventory"), (snapshot) => {
-      setInventory(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    });
-    return unsubscribe;
-  }, []);
-
-  // Recalculate total cost when ingredients change
-  useEffect(() => {
-    const cost = ingredients.reduce((acc, ing) => {
-      const inventoryItem = inventory.find(item => item.id === ing.id);
-      return acc + (inventoryItem ? inventoryItem.price * ing.quantity : 0);
-    }, 0);
-    setTotalCost(cost);
-  }, [ingredients, inventory]);
-
-  const handleAddIngredient = (item) => {
-    if (!ingredients.some(ing => ing.id === item.id)) {
-      setIngredients([...ingredients, { ...item, quantity: 1 }]);
+    const fetchInventory = async () => {
+      const inventorySnapshot = await getDocs(collection(db, "inventory"));
+      const items = inventorySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setInventoryItems(items);
+    };
+    if (open) {
+      fetchInventory();
     }
+  }, [open]);
+
+  const handleIngredientChange = (index, field, value) => {
+    const newIngredients = [...ingredients];
+    newIngredients[index][field] = value;
+    setIngredients(newIngredients);
   };
 
-  const handleQuantityChange = (id, quantity) => {
-    const newQuantity = Math.max(0, Number(quantity));
-    setIngredients(
-      ingredients.map(ing => (ing.id === id ? { ...ing, quantity: newQuantity } : ing))
-    );
+  const addIngredient = () => {
+    setIngredients([...ingredients, { itemId: "", quantity: 0, unit: "" }]);
   };
 
-  const handleRemoveIngredient = (id) => {
-    setIngredients(ingredients.filter(ing => ing.id !== id));
+  const removeIngredient = (index) => {
+    const newIngredients = ingredients.filter((_, i) => i !== index);
+    setIngredients(newIngredients);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!recipeName || ingredients.length === 0) {
-      alert("Por favor, pon un nombre a la receta y añade al menos un ingrediente.");
+    if (!recipeName || ingredients.some(ing => !ing.itemId || ing.quantity <= 0)) {
+      alert("Por favor, complete todos los campos de la receta.");
       return;
     }
+
     try {
-      await addDoc(collection(db, "recipes"), {
+      let totalCost = 0;
+      for (const ingredient of ingredients) {
+        const inventoryItem = inventoryItems.find(item => item.id === ingredient.itemId);
+        if (inventoryItem) {
+          const ingredientQuantityInBaseUnit = convertToBaseUnit(ingredient.quantity, ingredient.unit, inventoryItem.type);
+          const inventoryItemQuantityInBaseUnit = convertToBaseUnit(inventoryItem.quantity, inventoryItem.unit, inventoryItem.type);
+          if (inventoryItemQuantityInBaseUnit > 0) {
+            totalCost += (ingredientQuantityInBaseUnit / inventoryItemQuantityInBaseUnit) * inventoryItem.price;
+          }
+        }
+      }
+
+      const recipeData = {
         name: recipeName,
-        ingredients: ingredients.map(({ id, quantity }) => ({ inventoryId: id, quantity })),
+        ingredients: ingredients.map(ing => ({
+          itemId: ing.itemId,
+          quantity: Number(ing.quantity),
+          unit: ing.unit
+        })),
         totalCost: totalCost,
-      });
+        createdAt: new Date(),
+      };
+
+      await addDoc(collection(db, "recipes"), recipeData);
+
       setRecipeName("");
-      setIngredients([]);
+      setIngredients([{ itemId: "", quantity: 0 }]);
       setOpen(false);
     } catch (error) {
       console.error("Error adding recipe: ", error);
-      alert("Hubo un error al crear la receta.");
+      alert("Hubo un error al añadir la receta.");
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-500 hover:bg-blue-600 text-white">Crear Receta</Button>
+        <Button className="modern-button">Añadir Receta</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl bg-white rounded-lg shadow-xl">
+      <DialogContent className="modern-dialog max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-800">Crear Nueva Receta</DialogTitle>
+          <DialogTitle className="modern-dialog-title">Añadir Nueva Receta</DialogTitle>
+          <DialogDescription className="text-text">
+            Rellena los detalles de la nueva receta.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-6 py-6 px-4">
+          <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right font-medium text-gray-700">Nombre</Label>
-              <Input id="name" value={recipeName} onChange={(e) => setRecipeName(e.target.value)} className="col-span-3" />
+              <Label htmlFor="recipeName" className="text-right modern-label">Nombre</Label>
+              <Input
+                id="recipeName"
+                value={recipeName}
+                onChange={(e) => setRecipeName(e.target.value)}
+                className="col-span-3 modern-input"
+              />
             </div>
-            
-            <h3 className="font-semibold mt-4 text-gray-800">Ingredientes</h3>
-            <IngredientCombobox inventory={inventory} onSelect={handleAddIngredient} />
-
-            <div className="space-y-3 mt-4 max-h-60 overflow-y-auto pr-2">
-              {ingredients.map(ing => (
-                <div key={ing.id} className="flex items-center gap-4 p-2 rounded-md bg-gray-50">
-                  <span className="flex-1 font-medium text-gray-700">{ing.name}</span>
-                  <Input
-                    type="number"
-                    className="w-24"
-                    value={ing.quantity}
-                    onChange={(e) => handleQuantityChange(ing.id, e.target.value)}
-                  />
-                  <span className="text-gray-600">{ing.unit}</span>
-                  <Button type="button" variant="destructive" size="icon" onClick={() => handleRemoveIngredient(ing.id)}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-
-            <div className="text-right font-bold text-xl mt-4 text-gray-800">
-              Costo Total: <span className="text-green-600">${totalCost.toFixed(2)}</span>
-            </div>
+            <h4 className="text-lg font-semibold mt-4 modern-label">Ingredientes</h4>
+            {ingredients.map((ingredient, index) => (
+              <div key={index} className="grid grid-cols-12 items-center gap-2">
+                <select
+                  value={ingredient.itemId}
+                  onChange={(e) => handleIngredientChange(index, "itemId", e.target.value)}
+                  className="col-span-6 modern-input"
+                >
+                  <option value="">Seleccionar ingrediente</option>
+                  {inventoryItems.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+                <Input
+                  type="number"
+                  value={ingredient.quantity}
+                  onChange={(e) => handleIngredientChange(index, "quantity", e.target.value)}
+                  className="col-span-3 modern-input"
+                  placeholder="Cantidad"
+                />
+                <select
+                  value={ingredient.unit}
+                  onChange={(e) => handleIngredientChange(index, "unit", e.target.value)}
+                  className="col-span-3 modern-input"
+                >
+                  <option value="">Unidad</option>
+                  <optgroup label="Peso">
+                    <option value="gr">gr</option>
+                    <option value="kg">kg</option>
+                    <option value="oz">oz</option>
+                    <option value="lb">lb</option>
+                  </optgroup>
+                  <optgroup label="Volumen">
+                    <option value="ml">ml</option>
+                    <option value="l">l</option>
+                  </optgroup>
+                  <optgroup label="Unidades">
+                    <option value="un">un</option>
+                  </optgroup>
+                </select>
+                <Button type="button" variant="destructive" onClick={() => removeIngredient(index)} className="col-span-2">
+                  X
+                </Button>
+              </div>
+            ))}
+            <Button type="button" onClick={addIngredient} className="mt-2 modern-button">
+              Añadir Ingrediente
+            </Button>
           </div>
-          <DialogFooter className="px-4 py-3 bg-gray-50 rounded-b-lg">
-            <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white">Guardar Receta</Button>
+          <DialogFooter className="px-4 py-3 bg-surface rounded-b-lg">
+            <Button type="submit" className="modern-button">Guardar Receta</Button>
           </DialogFooter>
         </form>
       </DialogContent>

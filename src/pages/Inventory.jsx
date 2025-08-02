@@ -40,13 +40,13 @@ export default function Inventory() {
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-4xl font-bold text-gray-800">Inventario</h1>
+        <h1 className="text-4xl font-bold">Inventario</h1>
         <div className="flex gap-4">
           <PdfUploader />
           <AddItemForm />
         </div>
       </div>
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+      <div className="shadow-md rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-100">
@@ -68,7 +68,12 @@ export default function Inventory() {
                 <TableCell>${item.price}</TableCell>
                 <TableCell className="text-right space-x-2">
                   <EditItemForm item={item} />
-                  <Button variant="destructive" size="sm" onClick={() => handleDelete(item.id)}>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(item.id)}
+                    className="modern-button modern-button-destructive"
+                  >
                     Eliminar
                   </Button>
                 </TableCell>
